@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>Table Editor</title>
+<script src="http://handsontable.com/dist/handsontable.full.js"></script>
+<link rel="stylesheet" media="screen"
+	href="http://handsontable.com/dist/handsontable.full.css">
+<script type="text/javascript"
+	src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+</head>
+<body>
+	<div id="hot"></div>
+	<div id="example1">
+		<textarea rows="15" cols="66" id="here"></textarea>
+	</div>
+	<div id="resultDiv"></div>
+	<textarea rows="15" cols="66" id="output"></textarea>
+	<br>
+
+	<input type="button" value="Convert" name="convert" id="convert">
+	<input type="button" value="Back" name="back" id="back">
+	<input type="button" value="Back" name="back2" id="back2">
+	<input type="button" value="Show Table" name="showtable" id="showtable">
+	<input type="button" value="Done" name="done" id="done" OnClick="javascript:window.close()">
+	
+	
+	<div id="resultDiv"></div>
+	<!-- <div id="output"/> -->
+
+	<script>
+	   $(function(){
+		    $("#here").hide();
+		    $("#output").hide();
+		    $("#done").hide();
+		    $("#back").hide();
+		    $("#showtable").hide();
+		    $("#resultDiv").hide();
+		    $("#back2").hide();
+		    
+		    $("#convert").on('click', function() {
+		 	   $("#hot").hide();
+		 	  $("#convert").hide();
+		 	   $("#here").show();
+		 	  $("#done").show();
+		 	 $("#showtable").show();
+		 	 $("#back").show();
+		 	$("#resultDiv").hide();
+		 	$("#output").hide();
+		 	$("#back2").hide();
+		 	   
+		 	});
+		    
+		    $("#back").on('click', function() {
+	 	 	   $("#hot").show();
+	 	 	  $("#convert").show();
+	 	 	$("#output").hide();
+	 	 	   $("#here").hide();
+	 	 	  $("#done").hide();
+	 	 	 $("#back").hide();
+	 	 	$("#back2").hide();
+	 	 	 $("#showtable").hide();
+	 	 	$("#resultDiv").hide();
+	 	 	   
+	 	 	});
+		    $("#back2").on('click', function() {
+		    	 $("#hot").hide();
+			 	  $("#convert").hide();
+			 	   $("#here").show();
+			 	  $("#done").show();
+			 	 $("#showtable").show();
+			 	 $("#back").show();
+			 	$("#resultDiv").hide();
+			 	$("#output").hide();
+			 	$("#back2").hide();
+		 	 	   
+		 	 	});
+	 	 	
+	 	 	$("#showtable").on('click', function() {
+	 	 		
+	 	 		
+	 	 		$('#resultDiv').html($('textarea#here').val());
+	 	 		
+	 	 		$("#resultDiv").show();
+	 	 		/* $("#back2").show();
+	 	 		$("#output").hide();
+	 	 		$("#here").hide();
+	 		    $("#done").hide();
+	 		    $("#back").hide();
+	 		    $("#showtable").hide();
+	 		    $("#output").hide();
+	 		    $("#hot").hide();
+			 	$("#convert").hide(); */
+	 	 	      
+		 	 	});	
+		    
+		   
+		});  
+	var n='';
+	var valueAt;
+	var ax;
+	var ar;
+	var ac;
+	var y;
+	var rs;
+	var cs;
+	var RowNo = [];
+	var ColNo = [];
+	var RowSpan = [];
+	var ColSpan = [];
+	function JsonData(data)
+	{
+		y = eval(data);
+		//console.log(y.length);
+		
+		for ( var i = 0; i < y.length; i++) 
+		{
+
+			RowNo[i] = y[i].row;
+			ColNo[i] = y[i].col;
+			RowSpan[i] = y[i].rowspan;
+			ColSpan[i] = y[i].colspan;
+			//alert('Done...'+i+'Row['+i+']='+RowNo[i]+' Column['+i+'] ='+ColNo[i]+' Rowspan['+i+'] ='+RowSpan[i]+' Colspan['+i+'] ='+ColSpan[i]+'\n');
+		}
+	}
+	function check( r, c)
+	{
+		for ( var i = 0; i < y.length; i++) 
+		{
+  			for(var j=0; j<y.length; j++)
+			{
+  				if(RowNo[i]==r && ColNo[i]==c)
+  				{
+  					return true;
+  				}
+  			}
+		}
+		return false;
+	}
+	
+	function ValuesAt( r, c)
+	{
+		for ( var i = 0; i < y.length; i++) 
+		{
+			for(var j=0; j<y.length; j++)
+			{
+				if(RowNo[i]==r && ColNo[i]==c)
+				{
+					return { rs : RowSpan[i], cs : ColSpan[i]  };
+				}
+			}
+		}
+		return { rs : 1, cs : 1 };
+	}
+		var data = [ [] ];
+
+		var container = document.getElementById('hot');
+		var hot = new Handsontable(container, {
+			data : data,
+			rowHeaders : true,
+			colHeaders : true,
+			minSpareRows : 1,
+			minSpareCols : 1,
+			colHeaders : true,
+			contextMenu : true,
+			minRows : 10,
+			minCols : 10,
+			mergeCells : true,
+			contextMenu : true
+		});
+
+		Handsontable.Dom.addEvent(convert, 'click', function() {
+							
+							/* var str = JSON.stringify(hot.mergeCells.mergedCellInfoCollection);
+							console.log(str.length); */
+	var c;
+	document.getElementById('output').innerHTML = JSON.stringify(hot.mergeCells.mergedCellInfoCollection);
+	var x = document.getElementById("output").value;
+	JsonData(x);
+	//var col=0;
+	var content = "<table border='1' cellspacing='1'>"
+	for(var row=0; row<hot.countRows();row++)
+	{ 
+		if(!(hot.isEmptyRow(row)))
+		{
+			content+='\n    <tr>';
+			
+			for(var col=0; col<hot.countCols();col++)
+			
+			{
+				if(!(hot.isEmptyCol(col)))
+				{
+					/* if(hot.getDataAtCell(row,col)==n)
+						console.log('True');
+					else
+						console.log('Row = '+row+' Col = '+col+' Value = '+hot.getDataAtCell(row,col)+'\n'); */
+					
+					if(check(row,col))
+					{
+						valueAt=ValuesAt(row,col);	
+						rs=valueAt.rs;
+						cs=valueAt.cs;
+						//console.log('Row = '+row+' Col = '+col+' Rowsapn = '+rs+' Colspan = '+cs+'\n');''
+						if(row==0)
+						{
+							if(hot.getDataAtCell(row,col)!=n)
+							{
+								content += '\n \t<th rowspan = '+rs+' colspan = '+cs+'>' + hot.getDataAtCell(row,col)+ '</th>';
+								if(cs>1)
+							 		col =col+(cs-1);
+							 	 if(rs>1)
+							 		{
+							 			 ac=col;
+							 			 ar=row;
+							 			 ax=rs
+							 		}
+								}
+							else
+							{
+								 if(col==ac && ax>1)
+								{
+									content += '';
+									ax--;
+								}
+									
+								else 
+									content += '\n \t<th></th>';
+							}
+						}
+						else
+						{
+							if(hot.getDataAtCell(row,col)!=n)
+							{
+									content += '\n \t<td rowspan = '+rs+' colspan = '+cs+'>' + hot.getDataAtCell(row,col)+ '</td>';
+									if(cs>1)
+							 			col=col+(cs-1);
+							 		
+							 		if(rs>1)
+								 		{
+								 			 ac=col;
+								 			 ar=row;
+								 			 ax=rs
+								 		}
+							 	
+							}
+							else
+							{
+								 if(col==ac && ax>1)
+								{
+									content += '';
+									ax--;
+								}
+									
+								else 
+									content += '\n \t<th></th>';
+							}
+						} 
+						
+					}
+					
+					else
+					{
+						if(row==0)
+						{
+							if(hot.getDataAtCell(row,col)!=n)
+							{
+						 		content += '\n \t<th>' + hot.getDataAtCell(row,col)+ '</th>';
+							}
+							else
+							{
+								 if(col==ac && ax>1)
+									{
+										content += '';
+										ax--;
+									}
+								 else
+									 content += '\n \t<th></th>';
+							}
+						}
+						else
+						{
+							if(hot.getDataAtCell(row,col)!=n)
+							{
+						 		content += '\n \t<td>' + hot.getDataAtCell(row,col)+ '</td>';
+							}
+							else
+							{
+								 if(col==ac && ax>1)
+									{
+										content += '';
+										ax--;
+									}
+								 else
+									 content += '\n \t<td></td>';
+							}
+						}
+					
+					}
+				}
+			}
+			content+='\n    </tr>';
+		}
+							
+	}
+							content += "\n</table>"; 
+							
+							document.getElementById('here').value=content;
+});
+		 	 
+
+			
+	</script>
+
+</body>
+</html>
